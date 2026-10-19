@@ -1,0 +1,5 @@
+
+let ctx:AudioContext|null=null; let master:GainNode|null=null;
+function ac(volume:number){ if(!ctx){ctx=new AudioContext(); master=ctx.createGain(); master.connect(ctx.destination);} if(master) master.gain.value=volume; if(ctx.state==="suspended") ctx.resume(); return ctx; }
+function tone(freq:number,dur=0.12,type:OscillatorType="sine",vol=0.15,when=0,volume=0.7){ const c=ac(volume); const o=c.createOscillator(); const g=c.createGain(); o.type=type; o.frequency.value=freq; g.gain.setValueAtTime(vol,c.currentTime+when); g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+when+dur); o.connect(g); g.connect(master!); o.start(c.currentTime+when); o.stop(c.currentTime+when+dur); }
+export const sfx={ click:(v:number)=>tone(1200,0.05,"square",0.06,0,v), spin:(v:number)=>{tone(180,0.5,"sawtooth",0.05,0,v); tone(240,0.5,"sawtooth",0.04,0.05,v)}, stop:(i:number,v:number)=>tone(300+i*40,0.09,"square",0.12,0,v), coin:(v:number)=>{[523,659,784,1046].forEach((f,i)=>tone(f,0.15,"sine",0.12,i*0.07,v))}, big:(v:number)=>{[392,523,659,784,1046,1318].forEach((f,i)=>tone(f,0.3,"triangle",0.14,i*0.1,v))} };
